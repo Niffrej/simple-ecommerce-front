@@ -1,35 +1,50 @@
-import React, { useContext } from 'react';
-import { CartContext } from '../contexts/CartContext';
+import React from 'react';
+import { useCart } from '../contexts/CartContext';
 
 function Cart({ onClose }) {
-  const { cart, removeFromCart } = useContext(CartContext);
+  const { cartItems, removeFromCart } = useCart();
 
-  const total = cart.reduce((sum, item) => sum + item.price, 0);
+  // Calcula o total verificando se o item tem um valor de `price` definido
+  const totalPrice = cartItems.reduce((acc, item) => {
+    if (item && item.price) {
+      return acc + item.price * (item.quantity || 1);
+    }
+    return acc;
+  }, 0);
 
   return (
-    <div className="fixed top-0 right-0 w-80 h-full bg-white shadow-lg p-4">
-      <button
-        className="absolute top-2 right-2 text-gray-600 hover:text-gray-800"
-        onClick={onClose}
+    <div className="fixed top-0 right-0 w-80 h-full bg-white shadow-lg p-4 overflow-y-auto">
+      <h2 className="text-2xl font-bold mb-4">Carrinho de Compras</h2>
+      <button 
+        onClick={onClose} 
+        className="mb-4 bg-red-500 text-white px-4 py-2 rounded"
       >
         Fechar
       </button>
-      <h2 className="text-xl font-bold mb-4">Carrinho</h2>
-      <ul>
-        {cart.map((item, index) => (
-          <li key={index} className="flex justify-between mb-2">
-            <span>{item.name}</span>
-            <span>R$ {item.price.toFixed(2)}</span>
-            <button
-              className="text-red-500"
-              onClick={() => removeFromCart(item)}
+      <ul className="space-y-2">
+        {cartItems.map((item) => (
+          <li key={item._id} className="flex justify-between items-center p-2 border-b">
+            <div>
+              <span className="font-semibold">{item.name}</span>
+              <div>
+                <span>Quantidade: {item.quantity}</span>
+                <span className="ml-2">
+                  Preço: {item.price ? `$${item.price.toFixed(2)}` : 'Indisponível'}
+                </span>
+              </div>
+            </div>
+            <button 
+              onClick={() => removeFromCart(item._id)} 
+              className="text-red-500 hover:text-red-700"
             >
               Remover
             </button>
           </li>
         ))}
       </ul>
-      <div className="mt-4 font-bold">Total: R$ {total.toFixed(2)}</div>
+      <div className="mt-4">
+        <h3 className="text-lg font-bold">Total: ${totalPrice.toFixed(2)}</h3>
+      </div>
     </div>
   );
 }

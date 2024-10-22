@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import Header from './components/Header';
 import ProductList from './components/ProductList';
 import Cart from './components/Cart';
-import { CartProvider } from './contexts/CartContext';
+import { CartProvider, useCart } from './contexts/CartContext';
 import './styles/index.css';
 
 function App() {
   const [products, setProducts] = useState([]);
-  const [showCart, setShowCart] = useState(false);
+  const [showCart, setShowCart] = useState(false); // Controle para mostrar a aba "Ver Carrinho"
+  const { cartItems, setCartItems } = useCart();
 
   useEffect(() => {
     fetch('https://simple-ecommerce-p704.onrender.com/api/products')
@@ -19,33 +21,77 @@ function App() {
   }, []);
 
   const addToCart = (product) => {
-    setShowCart(true); // Mostra o carrinho quando um item é adicionado
+    const token = localStorage.getItem('authToken');
+
+    if (token) {
+      axios.post('https://simple-ecommerce-p704.onrender.com/api/cart/add', { productId: product._id }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then(response => {
+        setCartItems(prevItems => {
+          const existingItem = prevItems.find(item => item._id === product._id);
+          if (existingItem) {
+            return prevItems.map(item =>
+              item._id === product._id ? { ...item, quantity: item.quantity + 1 } : item
+            );
+          } else {
+            return [...prevItems, { ...product, quantity: 1 }];
+          }
+        });
+      })
+      .catch(error => console.error('Erro ao adicionar ao carrinho:', error));
+    } else {
+      setCartItems(prevItems => {
+        const existingItem = prevItems.find(item => item._id === product._id);
+        if (existingItem) {
+          return prevItems.map(item =>
+            item._id === product._id ? { ...item, quantity: item.quantity + 1 } : item
+          );
+        } else {
+          return [...prevItems, { ...product, quantity: 1 }];
+        }
+      });
+    }
   };
 
   const closeCart = () => {
-    setShowCart(false);
+    setShowCart(false); // Fecha a aba "Ver Carrinho"
+  };
+
+  const openCart = () => {
+    setShowCart(true); // Abre a aba "Ver Carrinho"
   };
 
   return (
-    <CartProvider>
-      <div className="min-h-screen bg-gray-100">
-        <Header />
+    <div className="min-h-screen bg-gray-100">
+      <Header openCart={openCart} />
 
-        <main className="container mx-auto py-6">
-          <h2 className="text-2xl font-semibold mb-4">Produtos</h2>
-          <ProductList products={products} addToCart={addToCart} />
-        </main>
+      <main className="container mx-auto py-6">
+        <h2 className="text-2xl font-semibold mb-4">Produtos</h2>
+        <ProductList products={products} addToCart={addToCart} />
+      </main>
 
-        {showCart && <Cart onClose={closeCart} />}
+      {showCart && ( // Verifica se a aba "Ver Carrinho" está aberta
+        <div className="cart-modal">
+          <Cart onClose={closeCart} />
+        </div>
+      )}
 
-        <footer className="bg-blue-600 text-white p-4 mt-6">
-          <div className="container mx-auto text-center">
-            <p>&copy; 2024 E-Commerce. Todos os direitos reservados.</p>
-          </div>
-        </footer>
-      </div>
-    </CartProvider>
+      <footer className="bg-blue-600 text-white p-4 mt-6">
+        <div className="container mx-auto text-center">
+          <p>&copy; 2024 E-Commerce. Todos os direitos reservados.</p>
+        </div>
+      </footer>
+    </div>
   );
 }
 
-export default App;
+export default function WrappedApp() {
+  return (
+    <CartProvider>
+      <App />
+    </CartProvider>
+  );
+}
