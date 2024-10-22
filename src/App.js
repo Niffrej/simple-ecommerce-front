@@ -3,13 +3,13 @@ import axios from 'axios';
 import Header from './components/Header';
 import ProductList from './components/ProductList';
 import Cart from './components/Cart';
-import { CartProvider, useCart } from './contexts/CartContext';
+import { CartProvider } from './contexts/CartContext';
 import './styles/index.css';
 
 function App() {
   const [products, setProducts] = useState([]);
   const [showCart, setShowCart] = useState(false); // Controle para mostrar a aba "Ver Carrinho"
-  const { cartItems, setCartItems } = useCart();
+  const { setCartItems } = useCart(); // Obtemos o setCartItems do CartContext
 
   useEffect(() => {
     fetch('https://simple-ecommerce-p704.onrender.com/api/products')
@@ -40,6 +40,7 @@ function App() {
             return [...prevItems, { ...product, quantity: 1 }];
           }
         });
+        openCart(); // Abre o carrinho após adicionar um item
       })
       .catch(error => console.error('Erro ao adicionar ao carrinho:', error));
     } else {
@@ -53,15 +54,16 @@ function App() {
           return [...prevItems, { ...product, quantity: 1 }];
         }
       });
+      openCart(); // Abre o carrinho após adicionar um item
     }
   };
 
   const closeCart = () => {
-    setShowCart(false); // Fecha a aba "Ver Carrinho"
+    setShowCart(false); 
   };
 
   const openCart = () => {
-    setShowCart(true); // Abre a aba "Ver Carrinho"
+    setShowCart(true); 
   };
 
   return (
