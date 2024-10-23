@@ -3,13 +3,13 @@ import axios from 'axios';
 import Header from './components/Header';
 import ProductList from './components/ProductList';
 import Cart from './components/Cart';
-import { useCart, CartProvider } from './contexts/CartContext'; // Corrigido o hook useCart
+import { CartProvider, useCart } from './contexts/CartContext';
 import './styles/index.css';
 
 function App() {
   const [products, setProducts] = useState([]);
   const [showCart, setShowCart] = useState(false); // Controle para mostrar a aba "Ver Carrinho"
-  const { setCartItems } = useCart(); // Correção: Agora useCart está sendo utilizado corretamente
+  const { setCartItems } = useCart(); // Obtemos o setCartItems do CartContext
 
   useEffect(() => {
     fetch('https://simple-ecommerce-p704.onrender.com/api/products')
