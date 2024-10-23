@@ -12,7 +12,7 @@ function App() {
   const { setCartItems } = useCart(); // Obtemos o setCartItems do CartContext
 
   useEffect(() => {
-    fetch('https://simple-ecommerce-p704.onrender.com/api/products')
+    fetch('https://simple-ecommerce-green.vercel.app/api/products')
       .then(response => response.json())
       .then(data => {
         setProducts(data);
@@ -24,7 +24,7 @@ function App() {
     const token = localStorage.getItem('authToken');
 
     if (token) {
-      axios.post('https://simple-ecommerce-p704.onrender.com/api/cart/add', { productId: product._id }, {
+      axios.post('https://simple-ecommerce-green.vercel.app/api/cart/add', { productId: product._id }, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
