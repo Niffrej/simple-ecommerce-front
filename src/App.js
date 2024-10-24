@@ -8,8 +8,15 @@ import './styles/index.css';
 
 function App() {
   const [products, setProducts] = useState([]);
-  const [showCart, setShowCart] = useState(false); 
-  const { setCartItems } = useCart(); 
+  const [showCart, setShowCart] = useState(false);
+  const { cartItems, setCartItems } = useCart();
+
+  useEffect(() => {
+    const savedCart = JSON.parse(localStorage.getItem('cartItems'));
+    if (savedCart) {
+      setCartItems(savedCart);
+    }
+  }, [setCartItems]);
 
   useEffect(() => {
     fetch('https://simple-ecommerce-green.vercel.app/api/products')
@@ -19,6 +26,12 @@ function App() {
       })
       .catch(error => console.error('Erro ao buscar produtos:', error));
   }, []);
+
+  useEffect(() => {
+    if (cartItems.length > 0) {
+      localStorage.setItem('cartItems', JSON.stringify(cartItems));
+    }
+  }, [cartItems]);
 
   const addToCart = (product) => {
     const token = localStorage.getItem('authToken');
@@ -57,11 +70,8 @@ function App() {
   };
 
   const openCart = () => {
-    console.log("Abrindo carrinho..."); 
     setShowCart(true); 
   };
-
-  console.log("Estado do carrinho:", showCart); 
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
@@ -72,7 +82,7 @@ function App() {
         <ProductList products={products} addToCart={addToCart} />
       </main>
 
-      {showCart && ( 
+      {showCart && (
         <div className="cart-modal">
           <Cart onClose={closeCart} />
         </div>
