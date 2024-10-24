@@ -13,8 +13,8 @@ function App() {
 
   useEffect(() => {
     const savedCart = JSON.parse(localStorage.getItem('cartItems'));
-    if (savedCart) {
-      setCartItems(savedCart);
+    if (savedCart && Array.isArray(savedCart)) {
+      setCartItems(savedCart); // Garante que setCartItems está sendo usado corretamente
     }
   }, [setCartItems]);
 

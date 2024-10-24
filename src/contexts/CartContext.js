@@ -1,9 +1,7 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
-// Criação do Contexto
 export const CartContext = createContext();
 
-// Hook para usar o contexto do carrinho
 export const useCart = () => {
   const context = useContext(CartContext);
   if (!context) {
@@ -12,13 +10,17 @@ export const useCart = () => {
   return context;
 };
 
-// Provider do Cart
 export const CartProvider = ({ children }) => {
 
-  // Aqui deve ter o estado `cartItems` que guarda os itens do carrinho
-  const [cartItems, setCartItems] = useState([]);
+  const [cartItems, setCartItems] = useState(() => {
+    const savedCart = localStorage.getItem('cartItems');
+    return savedCart ? JSON.parse(savedCart) : [];
+  });
 
-  // Função para adicionar ao carrinho
+  useEffect(() => {
+    localStorage.setItem('cartItems', JSON.stringify(cartItems));
+  }, [cartItems]);
+
   const addToCart = (product) => {
     setCartItems((prevItems) => {
       const existingItem = prevItems.find((item) => item._id === product._id);
@@ -34,7 +36,6 @@ export const CartProvider = ({ children }) => {
     });
   };
 
-  // Função para remover do carrinho
   const removeFromCart = (productId, removeAll = false) => {
     setCartItems((prevItems) => {
       const item = prevItems.find((item) => item._id === productId);
@@ -48,7 +49,6 @@ export const CartProvider = ({ children }) => {
     });
   };
 
-  // Passando `cartItems` junto com as funções no Provider
   return (
     <CartContext.Provider value={{ cartItems, addToCart, removeFromCart }}>
       {children}
