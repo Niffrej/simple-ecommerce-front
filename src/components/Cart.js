@@ -2,20 +2,17 @@ import React, { useEffect } from 'react';
 import { useCart } from '../contexts/CartContext';
 
 function Cart({ onClose }) {
-  const { cartItems = [], removeFromCart } = useCart(); // Define um array vazio por padrão
+  const { cartItems = [], removeFromCart } = useCart(); 
 
-  // Log para depuração
   useEffect(() => {
     console.log('Cart items:', cartItems);
   }, [cartItems]);
 
-  // Verifica se `cartItems` é um array válido
   if (!Array.isArray(cartItems)) {
     console.error('cartItems não é um array:', cartItems);
     return <p className="text-red-500">Erro ao carregar o carrinho.</p>;
   }
 
-  // Calcula o total verificando se o item tem um valor de `price` definido
   const totalPrice = cartItems.reduce((acc, item) => {
     if (item && item.price) {
       return acc + item.price * (item.quantity || 1);
