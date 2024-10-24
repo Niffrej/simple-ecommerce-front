@@ -1,8 +1,19 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useCart } from '../contexts/CartContext';
 
 function Cart({ onClose }) {
-  const { cartItems, removeFromCart } = useCart();
+  const { cartItems = [], removeFromCart } = useCart(); // Define um array vazio por padrão
+
+  // Log para depuração
+  useEffect(() => {
+    console.log('Cart items:', cartItems);
+  }, [cartItems]);
+
+  // Verifica se `cartItems` é um array válido
+  if (!Array.isArray(cartItems)) {
+    console.error('cartItems não é um array:', cartItems);
+    return <p className="text-red-500">Erro ao carregar o carrinho.</p>;
+  }
 
   // Calcula o total verificando se o item tem um valor de `price` definido
   const totalPrice = cartItems.reduce((acc, item) => {
@@ -22,25 +33,29 @@ function Cart({ onClose }) {
         Fechar
       </button>
       <ul className="space-y-2">
-        {cartItems.map((item) => (
-          <li key={item._id} className="flex justify-between items-center p-2 border-b">
-            <div>
-              <span className="font-semibold">{item.name}</span>
+        {cartItems.length > 0 ? (
+          cartItems.map((item) => (
+            <li key={item._id || item.id} className="flex justify-between items-center p-2 border-b">
               <div>
-                <span>Quantidade: {item.quantity}</span>
-                <span className="ml-2">
-                  Preço: {item.price ? `$${item.price.toFixed(2)}` : 'Indisponível'}
-                </span>
+                <span className="font-semibold">{item.name || 'Produto sem nome'}</span>
+                <div>
+                  <span>Quantidade: {item.quantity || 1}</span>
+                  <span className="ml-2">
+                    Preço: {item.price ? `$${item.price.toFixed(2)}` : 'Indisponível'}
+                  </span>
+                </div>
               </div>
-            </div>
-            <button 
-              onClick={() => removeFromCart(item._id)} 
-              className="text-red-500 hover:text-red-700"
-            >
-              Remover
-            </button>
-          </li>
-        ))}
+              <button 
+                onClick={() => removeFromCart(item._id || item.id)} 
+                className="text-red-500 hover:text-red-700"
+              >
+                Remover
+              </button>
+            </li>
+          ))
+        ) : (
+          <p className="text-gray-500">Seu carrinho está vazio.</p>
+        )}
       </ul>
       <div className="mt-4">
         <h3 className="text-lg font-bold">Total: ${totalPrice.toFixed(2)}</h3>

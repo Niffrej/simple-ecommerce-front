@@ -15,7 +15,7 @@ export const useCart = () => {
 // Provedor do contexto
 export const CartProvider = ({ children }) => {
   // Estado do carrinho
-  const [cartItems, setCartItems] = useState([]);
+  const [ setCartItems] = useState([]);
 
   // Função para adicionar ao carrinho
   const addToCart = (product) => {
@@ -52,7 +52,7 @@ export const CartProvider = ({ children }) => {
   };
 
   return (
-    <CartContext.Provider value={{ useCart, setCartItems, addToCart, removeFromCart }}>
+    <CartContext.Provider value={{ setCartItems, addToCart, removeFromCart }}>
       {children}
     </CartContext.Provider>
   );
