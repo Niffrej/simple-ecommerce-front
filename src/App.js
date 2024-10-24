@@ -9,45 +9,34 @@ import './styles/index.css';
 function App() {
   const [products, setProducts] = useState([]);
   const [showCart, setShowCart] = useState(false);
-  const { cartItems, setCartItems } = useCart();
+  const { setCartItems } = useCart(); // Usa o contexto do carrinho
 
-  useEffect(() => {
-    const savedCart = JSON.parse(localStorage.getItem('cartItems'));
-    if (savedCart && Array.isArray(savedCart)) {
-      setCartItems(savedCart); // Garante que setCartItems está sendo usado corretamente
-    }
-  }, [setCartItems]);
-
+  // Fetch dos produtos da API
   useEffect(() => {
     fetch('https://simple-ecommerce-green.vercel.app/api/products')
-      .then(response => response.json())
-      .then(data => {
+      .then((response) => response.json())
+      .then((data) => {
         setProducts(data);
       })
-      .catch(error => console.error('Erro ao buscar produtos:', error));
+      .catch((error) => console.error('Erro ao buscar produtos:', error));
   }, []);
 
-  useEffect(() => {
-    if (cartItems.length > 0) {
-      localStorage.setItem('cartItems', JSON.stringify(cartItems));
-    }
-  }, [cartItems]);
-
+  // Função para adicionar um produto ao carrinho
   const addToCart = (product) => {
     const token = localStorage.getItem('authToken');
 
     const addItemToCart = () => {
-      setCartItems(prevItems => {
-        const existingItem = prevItems.find(item => item._id === product._id);
+      setCartItems((prevItems) => {
+        const existingItem = prevItems.find((item) => item._id === product._id);
         if (existingItem) {
-          return prevItems.map(item =>
+          return prevItems.map((item) =>
             item._id === product._id ? { ...item, quantity: item.quantity + 1 } : item
           );
         } else {
           return [...prevItems, { ...product, quantity: 1 }];
         }
       });
-      openCart(); 
+      openCart(); // Abre o carrinho após adicionar o item
     };
 
     if (token) {
@@ -56,21 +45,23 @@ function App() {
           Authorization: `Bearer ${token}`,
         },
       })
-      .then(response => {
-        addItemToCart(); 
+      .then(() => {
+        addItemToCart(); // Adiciona o item ao carrinho após a API responder
       })
-      .catch(error => console.error('Erro ao adicionar ao carrinho:', error));
+      .catch((error) => console.error('Erro ao adicionar ao carrinho:', error));
     } else {
-      addItemToCart(); 
+      addItemToCart(); // Se não houver token, adiciona diretamente ao estado local
     }
   };
 
+  // Fecha o modal do carrinho
   const closeCart = () => {
-    setShowCart(false); 
+    setShowCart(false);
   };
 
+  // Abre o modal do carrinho
   const openCart = () => {
-    setShowCart(true); 
+    setShowCart(true);
   };
 
   return (
