@@ -8,8 +8,8 @@ import './styles/index.css';
 
 function App() {
   const [products, setProducts] = useState([]);
-  const [showCart, setShowCart] = useState(false); // Controle para mostrar a aba "Ver Carrinho"
-  const { setCartItems } = useCart(); // Obtemos o setCartItems do CartContext
+  const [showCart, setShowCart] = useState(false); 
+  const { setCartItems } = useCart(); 
 
   useEffect(() => {
     fetch('https://simple-ecommerce-green.vercel.app/api/products')
@@ -23,27 +23,7 @@ function App() {
   const addToCart = (product) => {
     const token = localStorage.getItem('authToken');
 
-    if (token) {
-      axios.post('https://simple-ecommerce-green.vercel.app/api/cart/add', { productId: product._id }, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then(response => {
-        setCartItems(prevItems => {
-          const existingItem = prevItems.find(item => item._id === product._id);
-          if (existingItem) {
-            return prevItems.map(item =>
-              item._id === product._id ? { ...item, quantity: item.quantity + 1 } : item
-            );
-          } else {
-            return [...prevItems, { ...product, quantity: 1 }];
-          }
-        });
-        openCart(); // Abre o carrinho após adicionar um item
-      })
-      .catch(error => console.error('Erro ao adicionar ao carrinho:', error));
-    } else {
+    const addItemToCart = () => {
       setCartItems(prevItems => {
         const existingItem = prevItems.find(item => item._id === product._id);
         if (existingItem) {
@@ -54,7 +34,21 @@ function App() {
           return [...prevItems, { ...product, quantity: 1 }];
         }
       });
-      openCart(); // Abre o carrinho após adicionar um item
+      openCart(); 
+    };
+
+    if (token) {
+      axios.post('https://simple-ecommerce-green.vercel.app/api/cart/add', { productId: product._id }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then(response => {
+        addItemToCart(); 
+      })
+      .catch(error => console.error('Erro ao adicionar ao carrinho:', error));
+    } else {
+      addItemToCart(); 
     }
   };
 
@@ -75,7 +69,7 @@ function App() {
         <ProductList products={products} addToCart={addToCart} />
       </main>
 
-      {showCart && ( // Verifica se a aba "Ver Carrinho" está aberta
+      {showCart && ( 
         <div className="cart-modal">
           <Cart onClose={closeCart} />
         </div>
