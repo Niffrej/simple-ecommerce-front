@@ -57,8 +57,11 @@ function App() {
   };
 
   const openCart = () => {
+    console.log("Abrindo carrinho..."); 
     setShowCart(true); 
   };
+
+  console.log("Estado do carrinho:", showCart); 
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
